@@ -1,0 +1,143 @@
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bar Plot</title>
+    <style>
+        .lighty{
+            font-size: medium;
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: lighter;
+        }
+    </style>
+</head>
+<body>
+    <svg id="barPlot" width="1000" height="1000" xmlns="http://www.w3.org/2000/svg">
+        <line x1="40" y1="150" x2="40" y2="400" stroke="black" />
+        <line id="bindeLine" x1="710" y1="150" x2="710" y2="400" stroke="black" />
+
+        <line x1="40" y1="400" x2="710" y2="400" stroke="black" />
+        <text x="40" y="100" stroke="black" style="font-size: 24;">
+            İntihar sayısı ve kaba intihar hızı, 2001-2022
+        </text>
+        <text x="10" y="140" stroke="black" class="lighty">
+            (intihar sayısı)
+        </text>
+
+        <text id="intiharBinde" x="690" y="140" stroke="black" class="lighty">
+            (binde)
+        </text>
+        <text x="715" y="405" stroke="black" class="lighty">
+            (yıl)
+        </text>
+    </svg>
+
+    <script>
+        const data = [2584, 2301, 2705, 2707, 2703, 2829, 2793,2816, 2898, 2933, 2677, 3287, 3252, 3169, 3246, 3193, 3168, 3342, 3476,3710, 4194, 4146]
+        const intiharOran = [3.97,3.49,4.05,4.00,3.95,4.08,3.98,3.96,4.02,4.01,3.61,4.37,4.27,4.11,4.15,4.03,3.94,4.11,4.21,4.45,4.98,4.88];
+        const dates = [2001,2002,2003,2004,2005,2006,2007,2008,2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022];
+        const binde = [0, 1000, 2000,3000,4000,5000,6000 ]
+        const rightBinde = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+        const barWidth = 20;
+        const svgHeight = 400;
+        const svg = document.getElementById('barPlot');
+        const points = [];
+        x= 0;
+        y = 0;
+        for (let i = 0; i < data.length; i++) {
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', i * (barWidth + 10) + 50);
+            rect.setAttribute('y', svgHeight - (data[i] / 9000) * (svgHeight - 50));
+            rect.setAttribute('width', barWidth);
+            rect.setAttribute('height', (data[i]/9000) * (svgHeight - 50));
+            rect.setAttribute('fill', 'blue');
+            svg.appendChild(rect);
+
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', i * (barWidth + 10) + 70);
+            text.setAttribute('y', svgHeight + 35);
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('transform', `rotate(-90 ${i * (barWidth + 10) + 50 + barWidth / 2} ${svgHeight + 30})`);
+
+            text.setAttribute('font-size', '14');
+            text.textContent = `${dates[i]}`;
+            svg.appendChild(text);
+
+            const dataText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            dataText.setAttribute('x', i * (barWidth + 10) + 110);
+            dataText.setAttribute('y', svgHeight + 35);
+            dataText.setAttribute('text-anchor', 'middle');
+            dataText.setAttribute('fill', 'white');
+            dataText.setAttribute('transform', `rotate(-90 ${i * (barWidth + 10) + 50 + barWidth / 2} ${svgHeight + 30})`);
+
+            dataText.setAttribute('font-size', '14');
+            dataText.textContent = `${data[i]}`;
+            svg.appendChild(dataText);
+            
+            x =   i * (barWidth + 10) + 60 ;
+            y = svgHeight - (intiharOran[i] / 9) * (svgHeight - 50) ;
+            console.log(x, "  dsfsd  ", y);
+            points.push(x);
+            points.push(y);
+            
+        }
+
+        const polyLine = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+        let pointsString = '';
+
+        for (let i = 0; i < points.length; i += 2) {
+            pointsString += `${points[i]},${points[i + 1]} `;
+        }
+
+        polyLine.setAttribute('points', pointsString.trim());
+        polyLine.setAttribute('fill', 'none');
+        polyLine.setAttribute('stroke', 'red');
+        svg.appendChild(polyLine);
+
+
+        for (let i = 0; i < 6; i++) {
+            const annotationText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            const rectT = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            annotationText.setAttribute('x', points[i * 8] - 10);  
+            annotationText.setAttribute('y', points[i * 8 + 1] - 10);  
+            annotationText.setAttribute('fill', 'black');
+            annotationText.textContent = intiharOran[i * 4];
+            rectT.setAttribute("x", points[i * 8]);
+            rectT.setAttribute("y", points[i * 8 + 1] -2);
+            rectT.setAttribute("width", 5);
+            rectT.setAttribute("height", 5);
+            rectT.setAttribute("fill", "red")
+            svg.appendChild(annotationText);
+            svg.appendChild(rectT);
+        }
+        for (let index = 0; index < binde.length; index++) {
+            const intiharBinde = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            intiharBinde.setAttribute('x', 22);
+            intiharBinde.setAttribute('y', (svgHeight - (binde[index] / 9000) * (svgHeight - 50)) +4);
+            intiharBinde.setAttribute('text-anchor', 'middle');
+            intiharBinde.setAttribute('fill', 'black');
+            intiharBinde.setAttribute('font-weight', 'bold');
+
+            intiharBinde.setAttribute('font-size', '14');
+            if (binde[index] == 0) {
+                intiharBinde.setAttribute('x', 33);
+            }
+            intiharBinde.textContent = `${binde[index]} -`;
+            svg.appendChild(intiharBinde);
+        }
+
+
+        for (let index = 0; index < rightBinde.length; index++) {
+            const bindeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            bindeText.setAttribute('x', 717);
+            bindeText.setAttribute('y', (svgHeight - (rightBinde[index] / 9) * (svgHeight - 50)) +4);
+            bindeText.setAttribute('text-anchor', 'middle');
+            bindeText.setAttribute('fill', 'black');
+            bindeText.setAttribute('font-weight', 'bold');
+
+            bindeText.setAttribute('font-size', '14');
+            bindeText.textContent = `- ${rightBinde[index]}`;
+            svg.appendChild(bindeText);
+        }
+    </script>
+</body>
